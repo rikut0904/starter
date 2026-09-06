@@ -24,6 +24,13 @@ type Config = domain.Config
 
 type commandRunner func(string, string, ...string) error
 
+type externalFailure struct {
+	cwd  string
+	name string
+	args []string
+	err  error
+}
+
 var runCommand commandRunner = func(dir, name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Dir, cmd.Stdout, cmd.Stderr = dir, os.Stdout, os.Stderr
@@ -262,20 +269,35 @@ func generate(out string, cfg Config, force bool, runner commandRunner) error {
 	if (cfg.Profile == "next-go" || cfg.Profile == "nextjs") && !cfg.Next.Configured && !cfg.Next.TypeScript && !cfg.Next.ESLint && !cfg.Next.Tailwind && !cfg.Next.SrcDir && !cfg.Next.AppRouter {
 		cfg.Next.TypeScript, cfg.Next.ESLint, cfg.Next.Tailwind, cfg.Next.AppRouter = true, true, true, true
 	}
+	failures := []externalFailure{}
 	if cfg.Profile == "next-go" {
-		reportExternal(out, "npx", nextCommand("frontend", cfg.Next), runner)
-		reportExternal(filepath.Join(out, "backend"), "go", []string{"mod", "init", "backend"}, runner)
+		if failure := reportExternal(out, "npx", nextCommand("frontend", cfg.Next), runner); failure != nil {
+			failures = append(failures, *failure)
+		}
+		if failure := reportExternal(filepath.Join(out, "backend"), "go", []string{"mod", "init", "backend"}, runner); failure != nil {
+			failures = append(failures, *failure)
+		}
 	}
 	if cfg.Profile == "nextjs" {
-		reportExternal(filepath.Dir(out), "npx", nextCommand(filepath.Base(out), cfg.Next), runner)
+		if failure := reportExternal(filepath.Dir(out), "npx", nextCommand(filepath.Base(out), cfg.Next), runner); failure != nil {
+			failures = append(failures, *failure)
+		}
 	}
 	if cfg.Profile == "go" {
-		reportExternal(out, "go", []string{"mod", "init", cfg.Name}, runner)
+		if failure := reportExternal(out, "go", []string{"mod", "init", cfg.Name}, runner); failure != nil {
+			failures = append(failures, *failure)
+		}
 	}
 	files := commonFiles(cfg)
 	for path, body := range files {
 		if err := writeFile(out, path, body, force); err != nil {
 			return err
+		}
+	}
+	if len(failures) > 0 {
+		fmt.Println("\n生成処理は完了しましたが、外部コマンドに失敗があります。")
+		for _, failure := range failures {
+			fmt.Printf("\n失敗: (cd %s && %s %s)\n原因: %v\n再実行: cd %s && %s %s\n", failure.cwd, failure.name, strings.Join(failure.args, " "), failure.err, failure.cwd, failure.name, strings.Join(failure.args, " "))
 		}
 	}
 	return nil
@@ -310,12 +332,13 @@ func nextCommand(name string, cfg domain.NextConfig) []string {
 	}
 	return args
 }
-func reportExternal(out, name string, args []string, runner commandRunner) {
+func reportExternal(out, name string, args []string, runner commandRunner) *externalFailure {
 	_ = os.MkdirAll(out, 0755)
 	fmt.Printf("実行: %s %s\n", name, strings.Join(args, " "))
 	if err := runner(out, name, args...); err != nil {
-		fmt.Printf("外部コマンド失敗: %v\n手動再実行: (cd %s && %s %s)\n", err, out, name, strings.Join(args, " "))
+		return &externalFailure{cwd: out, name: name, args: append([]string(nil), args...), err: err}
 	}
+	return nil
 }
 func writeFile(root, rel, body string, force bool) error {
 	path := filepath.Join(root, filepath.Clean(rel))

@@ -40,6 +40,9 @@ func TestGenerateRunsRequiredCommandsOnce(t *testing.T) {
 	if len(calls) != 2 {
 		t.Fatalf("got %d external calls, want 2", len(calls))
 	}
+	if _, err := os.Stat(filepath.Join(dir, "demo", "README.md")); err != nil {
+		t.Fatalf("common files must be generated after external failures: %v", err)
+	}
 }
 
 func TestLoadConfigJSON(t *testing.T) {
