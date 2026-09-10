@@ -40,4 +40,4 @@ uninstall:
 test:
 	go test ./...
 format:
-	gofmt -w *.go
+	gofmt -w $$(find . -type f -name '*.go' -not -path './.git/*' -not -path './.gocache/*' -not -path './.gomodcache/*')

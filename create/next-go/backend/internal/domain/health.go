@@ -1,3 +1,5 @@
 package domain
 
-type Health struct { Status string `json:"status"` }
+type Health struct {
+	Status string `json:"status"`
+}

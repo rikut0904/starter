@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
-	"net/http"
 	apphttp "github.com/rikut0904/starter/create/next-go/backend/internal/interface/http"
 	"github.com/rikut0904/starter/create/next-go/backend/internal/usecase"
+	"log"
+	"net/http"
 )
 
 func main() {
