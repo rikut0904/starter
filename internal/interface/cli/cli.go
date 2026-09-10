@@ -431,7 +431,7 @@ func profileMakefile(profile string) string {
 	case "nextjs":
 		return ".PHONY: help dev down logs test lint build format\nhelp:\n\t@echo \"dev down logs test lint build format\"\ndev:\n\tnpm run dev\ndown:\n\tdocker compose down\nlogs:\n\tdocker compose logs -f\ntest:\n\tnpm test\nlint:\n\tnpm run lint\nbuild:\n\tnpm run build\nformat:\n\tnpx prettier --write .\n"
 	case "go":
-		return ".PHONY: help dev down logs test lint build format\nhelp:\n\t@echo \"dev down logs test lint build format\"\ndev:\n\tgo run .\ndown:\n\tdocker compose down\nlogs:\n\tdocker compose logs -f\ntest:\n\tgo test ./...\nlint:\n\tgo vet ./...\nbuild:\n\tgo build ./...\nformat:\n\tgofmt -w .\n"
+		return ".PHONY: help up run down logs test lint build format\nhelp:\n\t@echo \"up run down logs test lint build format\"\nup:\n\tdocker compose up\nrun:\n\tgo run ./cmd/server\ndown:\n\tdocker compose down\nlogs:\n\tdocker compose logs -f\ntest:\n\tgo test ./...\nlint:\n\tgo vet ./...\nbuild:\n\tgo build ./...\nformat:\n\tgofmt -w .\n"
 	default:
 		return ".PHONY: help dev down logs test lint build format\nhelp:\n\t@echo \"利用可能: dev down logs test lint build format\"\ndev:\n\t@echo \"開発環境を構築してください\"\ndown:\n\t@echo \"停止対象はありません\"\nlogs:\n\t@echo \"ログ対象はありません\"\ntest lint build format:\n\t@echo \"対象を追加してください\"\n"
 	}

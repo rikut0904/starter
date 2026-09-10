@@ -140,3 +140,16 @@ func TestNextGoMakefileUsesUpTarget(t *testing.T) {
 		t.Fatal("next-go Makefile must not provide dev target")
 	}
 }
+
+func TestGoMakefileUsesCorrectEntrypoint(t *testing.T) {
+	makefile := profileMakefile("go")
+	if !strings.Contains(makefile, "\nup:\n\tdocker compose up\n") {
+		t.Fatalf("go Makefile must provide docker up target: %s", makefile)
+	}
+	if !strings.Contains(makefile, "\nrun:\n\tgo run ./cmd/server\n") {
+		t.Fatalf("go Makefile must run cmd/server: %s", makefile)
+	}
+	if strings.Contains(makefile, "\tgo run .\n") {
+		t.Fatal("go Makefile must not run the repository root")
+	}
+}
