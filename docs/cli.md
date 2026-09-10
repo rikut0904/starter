@@ -83,6 +83,14 @@ CLIはstarterリポジトリ内の `create/` をテンプレート・生成用�
 
 構成は単一選択のラジオボタン、Docker・Makefile・データベース等は複数選択のチェックボックス、プロジェクト名や著作権者は入力画面で指定する。
 
+認証機能では「共通認証（common-id）を使用」を選択できる。選択時に`common-id`コマンドを確認し、導入済みなら`common-id install`を実行する。見つからない場合は次の導入手順を表示する。CLIがリポジトリを自動変更することはない。
+
+```bash
+git clone https://github.com/rikut0904/common-id.git
+cd common-id
+make init/commond
+```
+
 ```text
 プロジェクト構成を選択してください
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -150,6 +151,65 @@ func TestNextGoMakefileUsesUpTarget(t *testing.T) {
 	}
 	if strings.Contains(makefile, "\ndev:\n") {
 		t.Fatal("next-go Makefile must not provide dev target")
+	}
+}
+
+func TestCommonIDFeatureChecksForCommond(t *testing.T) {
+	original := lookPath
+	t.Cleanup(func() { lookPath = original })
+
+	lookPath = func(name string) (string, error) {
+		if name != "common-id" {
+			t.Fatalf("looked up unexpected command %q", name)
+		}
+		return "", errors.New("not found")
+	}
+	if commonIDInstalled() {
+		t.Fatal("common-id must be reported as unavailable")
+	}
+	message := commonIDInstallPrompt()
+	for _, expected := range []string{
+		"git clone https://github.com/rikut0904/common-id.git",
+		"cd common-id",
+		"make init/commond",
+	} {
+		if !strings.Contains(message, expected) {
+			t.Fatalf("install prompt does not contain %q: %s", expected, message)
+		}
+	}
+}
+
+func TestCommonIDFeatureRunsInstall(t *testing.T) {
+	dir := t.TempDir()
+	original := lookPath
+	t.Cleanup(func() { lookPath = original })
+	lookPath = func(string) (string, error) { return "/usr/local/bin/common-id", nil }
+
+	var installed bool
+	runner := func(cwd, name string, args ...string) error {
+		if cwd != dir || name != "common-id" || !reflect.DeepEqual(args, []string{"install"}) {
+			t.Fatalf("unexpected common-id command: cwd=%q name=%q args=%v", cwd, name, args)
+		}
+		installed = true
+		return nil
+	}
+	if err := generate(dir, Config{Name: "demo", Profile: "empty", Features: []string{commonIDFeature}}, true, runner); err != nil {
+		t.Fatal(err)
+	}
+	if !installed {
+		t.Fatal("common-id install was not executed")
+	}
+}
+
+func TestCommonIDFeatureCanBeAddedAndRemoved(t *testing.T) {
+	cfg := Config{}
+	cfg.Features = addFeature(cfg.Features, commonIDFeature)
+	if !hasFeature(cfg, commonIDFeature) {
+		t.Fatal("common-id feature was not added")
+	}
+	cfg.Features = removeFeature(cfg.Features, commonIDFeature)
+	if hasFeature(cfg, commonIDFeature) {
+		t.Fatal("common-id feature was not removed")
 	}
 }
 

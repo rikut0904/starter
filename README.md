@@ -34,6 +34,14 @@ starter my-project
 
 構成や追加機能は、`starter` 実行後のCLI画面で選択します。
 
+認証機能で「共通認証（common-id）を使用」を選択した場合、`common-id` がPATHにあるか確認し、導入済みなら `common-id install` を実行します。見つからない場合は、CLIが次の導入手順を表示します。
+
+```bash
+git clone https://github.com/rikut0904/common-id.git
+cd common-id
+make init/commond
+```
+
 ## 生成先の例
 
 ```text
