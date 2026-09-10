@@ -2,10 +2,12 @@ package cli
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -24,6 +26,17 @@ func TestGenerateEmptyCreatesCommonFilesAndProtectsExisting(t *testing.T) {
 	}
 	if err := generate(filepath.Join(dir, "demo"), Config{Name: "demo", Profile: "empty"}, false, func(string, string, ...string) error { return nil }); err == nil {
 		t.Fatal("expected collision error")
+	}
+}
+
+func TestLicenseYearIsReplacedAndHolderIsFixed(t *testing.T) {
+	files := commonFiles(Config{Name: "sample-project", Profile: "empty"})
+	license := files["LICENSE"]
+	if strings.Contains(license, "{YEAR}") {
+		t.Fatal("license placeholders were not replaced")
+	}
+	if !strings.Contains(license, "Copyright (c) "+fmt.Sprint(time.Now().Year())+" rikut0904") {
+		t.Fatalf("unexpected license copyright line: %s", license)
 	}
 }
 
