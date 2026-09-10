@@ -48,7 +48,7 @@ make init/win
 make init/mac BIN_DIR="$HOME/.local/bin"
 ```
 
-シェル設定ファイルやWindowsのユーザー環境変数を自動編集せず、PATH不足時は実行したOS別ターゲットの結果として登録方法を案内する。
+シェル設定ファイルやWindowsのユーザー環境変数は自動編集せず、`SHELL`から利用環境を判定して、該当するbash・zsh・fishの登録コマンドだけを表示する。WindowsではPowerShellの設定方法を表示する。
 
 ## OS別仕様
 
@@ -103,4 +103,4 @@ CLIはstarterリポジトリ内の `create/` をテンプレート・生成用�
 | `--config` | 選択内容を記載した設定ファイル | 未指定 |
 | `--output` | 生成先 | `./<name>` |
 | `--force` | 既存ファイルを上書き | `false` |
-| `--non-interactive` | 対話を省略 | `false` |
+| `--profile` | 非対話時の構成（`next-go`、`nextjs`、`go`、`empty`） | 未指定 |

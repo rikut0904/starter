@@ -18,8 +18,10 @@ npx create-next-app@latest frontend -y
 go mod init backend
 ```
 
-コマンドが利用できない、ネットワークや依存関係の問題で失敗するなどの場合は、CLIが原因と再実行コマンドを表示する。CLIは自動で繰り返さず、共通ファイルや生成可能なファイルの処理を継続するか、失敗状況を示して安全に終了する。生成先のMakefileには`dev`、`down`、`logs`、`test`、`lint`、`build`、`format`、`help`を用意する。コンテナ内のサーバーは`0.0.0.0`にbindし、コンテナ間通信にはサービス名を使用する。
+コマンドが利用できない、ネットワークや依存関係の問題で失敗するなどの場合は、CLIが原因と再実行コマンドを表示する。CLIは自動で繰り返さず、共通ファイルや生成可能なファイルの処理を継続するか、失敗状況を示して安全に終了する。生成先のMakefileには`up`、`down`、`logs`、`test`、`lint`、`build`、`format`、`help`を用意する。コンテナ内のサーバーは`0.0.0.0`にbindし、コンテナ間通信にはサービス名を使用する。
 なお、frontendは`npx create-next-app@latest frontend -y`にて基本プロジェクトを実装するようにする。また、backendは`go mod init backend`にて初期化するようにする。
+
+backendはクリーンアーキテクチャを採用し、`cmd/server`をエントリーポイント、`internal/domain`をドメイン、`internal/usecase`をユースケース、`internal/interface/http`をHTTPアダプター、`internal/infrastructure`をインフラストラクチャ層とする。
 
 ## 2. Next.js (`nextjs`)
 
@@ -28,6 +30,8 @@ Next.js App Router、TypeScript、lint、format、test、build設定を生成す
 ## 3. Go (`go`)
 
 `go mod init <project-name>`を1回だけ試行してGoモジュールを初期化する。失敗時は利用者が再実行するための実際のコマンドを表示する。また、docker-compose.yml、Dockerfile、Makefileを生成する。
+
+Goプロジェクトは`cmd/server`、`internal/domain`、`internal/usecase`、`internal/interface/http`、`internal/infrastructure`に分割したクリーンアーキテクチャの最小雛形を生成する。
 
 ## 4. 空環境 (`empty`)
 

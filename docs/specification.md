@@ -46,11 +46,11 @@ starter/
 AGENTS.md
 CONTRIBUTING.md
 LICENSE
+LICENSE_JA
 README.md
 Makefile
 .gitignore
 .github/
-├── CODEOWNERS
 ├── dependabot.yml
 └── workflows/
     ├── ci.yml
