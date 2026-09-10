@@ -401,8 +401,11 @@ func dependabot(profile string) string {
 	if profile == "nextjs" {
 		base += "  - package-ecosystem: npm\n    directory: /\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
 	}
-	if profile == "next-go" || profile == "go" {
+	if profile == "next-go" {
 		base += "  - package-ecosystem: gomod\n    directory: /backend\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
+	}
+	if profile == "go" {
+		base += "  - package-ecosystem: gomod\n    directory: /\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
 	}
 	base += "  - package-ecosystem: github-actions\n    directory: /\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
 	return base

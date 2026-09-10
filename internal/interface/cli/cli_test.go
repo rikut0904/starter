@@ -113,3 +113,20 @@ func TestNextCommandIsNonInteractive(t *testing.T) {
 		t.Fatalf("unexpected create-next-app arguments: %s", joined)
 	}
 }
+
+func TestGoDependabotTargetsRootModule(t *testing.T) {
+	config := dependabot("go")
+	if !strings.Contains(config, "package-ecosystem: gomod\n    directory: /\n") {
+		t.Fatalf("go profile must target the root Go module: %s", config)
+	}
+	if strings.Contains(config, "directory: /backend") {
+		t.Fatal("go profile must not target /backend")
+	}
+}
+
+func TestNextGoDependabotTargetsBackendModule(t *testing.T) {
+	config := dependabot("next-go")
+	if !strings.Contains(config, "package-ecosystem: gomod\n    directory: /backend\n") {
+		t.Fatalf("next-go profile must target the backend module: %s", config)
+	}
+}
