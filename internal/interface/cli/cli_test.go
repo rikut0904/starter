@@ -130,3 +130,13 @@ func TestNextGoDependabotTargetsBackendModule(t *testing.T) {
 		t.Fatalf("next-go profile must target the backend module: %s", config)
 	}
 }
+
+func TestNextGoMakefileUsesUpTarget(t *testing.T) {
+	makefile := profileMakefile("next-go")
+	if !strings.Contains(makefile, ".PHONY: help up down") || !strings.Contains(makefile, "\nup:\n") {
+		t.Fatalf("next-go Makefile must provide up target: %s", makefile)
+	}
+	if strings.Contains(makefile, "\ndev:\n") {
+		t.Fatal("next-go Makefile must not provide dev target")
+	}
+}

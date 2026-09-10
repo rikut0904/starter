@@ -427,7 +427,7 @@ func ciWorkflow(profile string) string {
 func profileMakefile(profile string) string {
 	switch profile {
 	case "next-go":
-		return ".PHONY: help dev down logs test lint build format\nhelp:\n\t@echo \"dev down logs test lint build format\"\ndev:\n\tdocker compose up\ndown:\n\tdocker compose down\nlogs:\n\tdocker compose logs -f\ntest:\n\tcd backend && go test ./...\nlint:\n\tcd frontend && npm run lint\nbuild:\n\tdocker compose build\nformat:\n\tcd backend && gofmt -w .\n"
+		return ".PHONY: help up down logs test lint build format\nhelp:\n\t@echo \"up down logs test lint build format\"\nup:\n\tdocker compose up\ndown:\n\tdocker compose down\nlogs:\n\tdocker compose logs -f\ntest:\n\tcd backend && go test ./...\nlint:\n\tcd frontend && npm run lint\nbuild:\n\tdocker compose build\nformat:\n\tcd backend && gofmt -w .\n"
 	case "nextjs":
 		return ".PHONY: help dev down logs test lint build format\nhelp:\n\t@echo \"dev down logs test lint build format\"\ndev:\n\tnpm run dev\ndown:\n\tdocker compose down\nlogs:\n\tdocker compose logs -f\ntest:\n\tnpm test\nlint:\n\tnpm run lint\nbuild:\n\tnpm run build\nformat:\n\tnpx prettier --write .\n"
 	case "go":
