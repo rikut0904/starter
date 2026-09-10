@@ -103,5 +103,4 @@ CLIはstarterリポジトリ内の `create/` をテンプレート・生成用�
 | `--config` | 選択内容を記載した設定ファイル | 未指定 |
 | `--output` | 生成先 | `./<name>` |
 | `--force` | 既存ファイルを上書き | `false` |
-| `--non-interactive` | 対話を省略 | `false` |
 | `--profile` | 非対話時の構成（`next-go`、`nextjs`、`go`、`empty`） | 未指定 |

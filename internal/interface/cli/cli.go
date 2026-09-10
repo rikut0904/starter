@@ -47,8 +47,9 @@ var profiles = []struct{ id, title string }{
 func RootCommand() *cobra.Command {
 	var output, configPath string
 	var profile string
-	var force, nonInteractive bool
+	var force bool
 	cmd := &cobra.Command{Use: "starter <project-name>", Short: "開発用プロジェクトスターター", Args: cobra.MaximumNArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		interactive := len(args) == 0
 		cfg := Config{}
 		if configPath != "" {
 			if err := loadConfig(configPath, &cfg); err != nil {
@@ -62,12 +63,15 @@ func RootCommand() *cobra.Command {
 			cfg.Profile = profile
 		}
 		if cfg.Name == "" {
+			if !interactive {
+				return errors.New("プロジェクト名を指定してください")
+			}
 			cfg.Name = promptText("プロジェクト名", "my-project")
 		}
 		if err := validateProjectName(cfg.Name); err != nil {
 			return err
 		}
-		if !nonInteractive {
+		if interactive {
 			if err := interactiveConfig(&cfg); err != nil {
 				return err
 			}
@@ -97,7 +101,6 @@ func RootCommand() *cobra.Command {
 	cmd.Flags().StringVar(&output, "output", "", "生成先ディレクトリ")
 	cmd.Flags().StringVar(&profile, "profile", "", "非対話時のプロファイル（next-go, nextjs, go, empty）")
 	cmd.Flags().BoolVar(&force, "force", false, "既存ファイルを上書きする")
-	cmd.Flags().BoolVar(&nonInteractive, "non-interactive", false, "対話を省略する")
 	return cmd
 }
 
