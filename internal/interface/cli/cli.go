@@ -37,6 +37,10 @@ var runCommand commandRunner = func(dir, name string, args ...string) error {
 	return cmd.Run()
 }
 
+var lookPath = exec.LookPath
+
+const commonIDFeature = "common-id"
+
 var profiles = []struct{ id, title string }{
 	{"next-go", "Next.js + Go + Docker Compose + Makefile"},
 	{"nextjs", "Next.jsのみ"},
@@ -150,7 +154,93 @@ func interactiveConfig(cfg *Config) error {
 			return err
 		}
 	}
+	if cfg.Profile != "empty" {
+		if err := interactiveFeatureConfig(cfg); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+type featureModel struct {
+	selected  bool
+	cancelled bool
+}
+
+func interactiveFeatureConfig(cfg *Config) error {
+	m := featureModel{selected: hasFeature(*cfg, commonIDFeature)}
+	result, err := tea.NewProgram(m).Run()
+	if err != nil {
+		return err
+	}
+	resultModel := result.(featureModel)
+	if resultModel.cancelled {
+		return errors.New("追加機能の選択をキャンセルしました")
+	}
+	if resultModel.selected {
+		cfg.Features = addFeature(cfg.Features, commonIDFeature)
+	} else {
+		cfg.Features = removeFeature(cfg.Features, commonIDFeature)
+	}
+	return nil
+}
+
+func (m featureModel) Init() tea.Cmd { return nil }
+func (m featureModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if key, ok := msg.(tea.KeyMsg); ok {
+		switch key.String() {
+		case " ":
+			m.selected = !m.selected
+		case "enter":
+			return m, tea.Quit
+		case "q", "ctrl+c", "esc":
+			m.cancelled = true
+			return m, tea.Quit
+		}
+	}
+	return m, nil
+}
+func (m featureModel) View() string {
+	mark := "[ ]"
+	if m.selected {
+		mark = "[x]"
+	}
+	return lipgloss.NewStyle().Margin(1, 2).Render(fmt.Sprintf("\n認証機能を選択してください（Spaceで切替、Enterで決定）\n\n%s 共通認証（common-id）を使用\n", mark))
+}
+
+func hasFeature(cfg Config, feature string) bool {
+	for _, value := range cfg.Features {
+		if value == feature {
+			return true
+		}
+	}
+	return false
+}
+
+func addFeature(features []string, feature string) []string {
+	if contains(features, feature) {
+		return features
+	}
+	return append(features, feature)
+}
+
+func removeFeature(features []string, feature string) []string {
+	result := features[:0]
+	for _, value := range features {
+		if value != feature {
+			result = append(result, value)
+		}
+	}
+	return result
+}
+
+func contains(values []string, wanted string) bool {
+	for _, value := range values {
+		if value == wanted {
+			return true
+		}
+	}
+	return false
 }
 
 type nextChoice struct {
@@ -291,6 +381,13 @@ func generate(out string, cfg Config, force bool, runner commandRunner) error {
 			failures = append(failures, *failure)
 		}
 	}
+	if hasFeature(cfg, commonIDFeature) {
+		if !commonIDInstalled() {
+			fmt.Println(commonIDInstallPrompt())
+		} else if failure := reportExternal(out, "common-id", []string{"install"}, runner); failure != nil {
+			failures = append(failures, *failure)
+		}
+	}
 	files := commonFiles(cfg)
 	for path, body := range files {
 		if err := writeFile(out, path, body, force); err != nil {
@@ -304,6 +401,15 @@ func generate(out string, cfg Config, force bool, runner commandRunner) error {
 		}
 	}
 	return nil
+}
+
+func commonIDInstalled() bool {
+	_, err := lookPath("common-id")
+	return err == nil
+}
+
+func commonIDInstallPrompt() string {
+	return "\ncommon-id のコマンドが見つかりません。共通認証を利用するには、次を実行して common-id をインストールしてください。\n\n  git clone https://github.com/rikut0904/common-id.git\n  cd common-id\n  make init/commond\n\nインストール後、common-id を PATH に追加してから再実行してください。"
 }
 
 func nextCommand(name string, cfg domain.NextConfig) []string {
