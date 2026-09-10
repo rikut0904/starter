@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbletea"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	starter "github.com/rikut0904/starter"
 	"github.com/rikut0904/starter/internal/domain"
