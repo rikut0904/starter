@@ -40,6 +40,18 @@ func TestLicenseYearIsReplacedAndHolderIsFixed(t *testing.T) {
 	}
 }
 
+func TestCommonTemplatesAreGenerated(t *testing.T) {
+	files := commonFiles(Config{Name: "sample-project", Profile: "empty"})
+	for _, name := range []string{"LICENSE_JA"} {
+		if _, ok := files[name]; !ok {
+			t.Fatalf("common template %s was not generated", name)
+		}
+	}
+	if strings.Contains(files["LICENSE_JA"], "{YEAR}") {
+		t.Fatal("Japanese license year placeholder was not replaced")
+	}
+}
+
 func TestGenerateRunsRequiredCommandsOnce(t *testing.T) {
 	dir := t.TempDir()
 	calls := []string{}

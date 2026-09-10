@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 BIN_DIR ?= $(shell go env GOPATH)/bin
 
-.PHONY: help init init/mac init/linux init/win uninstall test format
+.PHONY: help init init/mac init/linux init/win uninstall test fmt
 help:
 	@echo "make init/mac|init/linux|init/win  CLIをビルドしてインストール"
 	@echo "make uninstall                    CLIを削除（確認あり）"
@@ -39,5 +39,5 @@ uninstall:
 	@printf "$(BIN_DIR)/starter を削除しますか？ [y/N] "; read answer; test "$$answer" = "y" || (echo "キャンセルしました"; exit 1); rm -f "$(BIN_DIR)/starter" "$(BIN_DIR)/starter.exe"
 test:
 	go test ./...
-format:
+fmt:
 	gofmt -w $$(find . -type f -name '*.go' -not -path './.git/*' -not -path './.gocache/*' -not -path './.gomodcache/*')

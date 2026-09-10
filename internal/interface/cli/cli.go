@@ -359,7 +359,7 @@ func writeFile(root, rel, body string, force bool) error {
 
 func commonFiles(cfg Config) map[string]string {
 	result := map[string]string{}
-	for _, name := range []string{"AGENTS.md", "CONTRIBUTING.md", "LICENSE", "README.md", "Makefile", ".gitignore", ".github/CODEOWNERS", ".github/dependabot.yml", ".github/workflows/ci.yml", ".github/workflows/dependency-review.yml"} {
+	for _, name := range []string{"AGENTS.md", "CONTRIBUTING.md", "LICENSE", "LICENSE_JA", "README.md", "Makefile", ".gitignore", ".github/dependabot.yml", ".github/workflows/ci.yml", ".github/workflows/dependency-review.yml"} {
 		b, err := starter.Assets.ReadFile(filepath.Join("create", "common", name))
 		if err == nil {
 			result[name] = string(b)
@@ -372,6 +372,7 @@ func commonFiles(cfg Config) map[string]string {
 	licenseYear := fmt.Sprint(time.Now().Year())
 	result["LICENSE"] = strings.ReplaceAll(result["LICENSE"], "{{PROJECT_NAME}}", cfg.Name)
 	result["LICENSE"] = strings.ReplaceAll(result["LICENSE"], "{YEAR}", licenseYear)
+	result["LICENSE_JA"] = strings.ReplaceAll(result["LICENSE_JA"], "{YEAR}", licenseYear)
 	result[".github/dependabot.yml"] = dependabot(cfg.Profile)
 	result[".github/workflows/ci.yml"] = ciWorkflow(cfg.Profile)
 	result["Makefile"] = profileMakefile(cfg.Profile)
