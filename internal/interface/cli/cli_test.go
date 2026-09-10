@@ -154,7 +154,7 @@ func TestNextGoMakefileUsesUpTarget(t *testing.T) {
 	}
 }
 
-func TestCommonIDFeatureChecksForCommond(t *testing.T) {
+func TestCommonIDFeatureChecksForCommonID(t *testing.T) {
 	original := lookPath
 	t.Cleanup(func() { lookPath = original })
 
