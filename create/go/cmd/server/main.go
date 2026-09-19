@@ -2,14 +2,29 @@ package main
 
 import (
 	"log"
-	"net/http"
 
+	"github.com/rikut0904/starter/create/go/internal/infrastructure/config"
+	"github.com/rikut0904/starter/create/go/internal/infrastructure/database"
 	apphttp "github.com/rikut0904/starter/create/go/internal/interface/http"
 	"github.com/rikut0904/starter/create/go/internal/usecase"
 )
 
 func main() {
-	handler := apphttp.NewHandler(usecase.NewHealth())
-	log.Println("listening on 0.0.0.0:8080")
-	log.Fatal(http.ListenAndServe("0.0.0.0:8080", handler))
+	cfg := config.Load()
+	db, err := database.New(cfg.DatabaseDSN)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := database.Ping(db); err != nil {
+		log.Fatal(err)
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer sqlDB.Close()
+
+	handler := apphttp.NewRouter(usecase.NewHealth())
+	log.Printf("listening on 0.0.0.0:%s", cfg.Port)
+	log.Fatal(handler.Start("0.0.0.0:" + cfg.Port))
 }

@@ -293,7 +293,8 @@ func generate(out string, cfg Config, force bool, runner commandRunner) error {
 	}
 	files := commonFiles(cfg)
 	for path, body := range files {
-		if err := writeFile(out, path, body, force); err != nil {
+		allowModuleBootstrap := (cfg.Profile == "go" && path == "go.mod") || (cfg.Profile == "next-go" && path == "backend/go.mod")
+		if err := writeFile(out, path, body, force || allowModuleBootstrap); err != nil {
 			return err
 		}
 	}
@@ -379,6 +380,7 @@ func commonFiles(cfg Config) map[string]string {
 	for _, name := range profileFiles(cfg.Profile) {
 		b, err := starter.Assets.ReadFile(filepath.Join("create", cfg.Profile, name))
 		if err == nil {
+			outputName := strings.TrimSuffix(name, ".tmpl")
 			body := strings.ReplaceAll(string(b), "{{MODULE}}", cfg.Name)
 			body = strings.ReplaceAll(body, "github.com/example/starter-template-go", cfg.Name)
 			body = strings.ReplaceAll(body, "github.com/rikut0904/starter/create/go", cfg.Name)
@@ -388,7 +390,7 @@ func commonFiles(cfg Config) map[string]string {
 			} else {
 				body = strings.ReplaceAll(body, "github.com/rikut0904/starter/create/next-go", cfg.Name)
 			}
-			result[name] = body
+			result[outputName] = body
 		}
 	}
 	return result
@@ -408,6 +410,15 @@ func dependabot(profile string) string {
 	if profile == "go" {
 		base += "  - package-ecosystem: gomod\n    directory: /\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
 	}
+	if profile == "next-go" {
+		base += "  - package-ecosystem: docker-compose\n    directory: /\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
+		base += "  - package-ecosystem: docker\n    directory: /frontend\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
+		base += "  - package-ecosystem: docker\n    directory: /backend\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
+	}
+	if profile == "nextjs" || profile == "go" {
+		base += "  - package-ecosystem: docker-compose\n    directory: /\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
+		base += "  - package-ecosystem: docker\n    directory: /\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
+	}
 	base += "  - package-ecosystem: github-actions\n    directory: /\n    schedule: { interval: weekly }\n    open-pull-requests-limit: 5\n    labels: [dependencies]\n"
 	return base
 }
@@ -416,11 +427,11 @@ func ciWorkflow(profile string) string {
 	check := "      - run: git diff --check\n"
 	switch profile {
 	case "next-go":
-		check += "      - uses: actions/setup-node@v4\n        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }\n      - run: npm ci\n        working-directory: frontend\n      - run: npm run lint\n        working-directory: frontend\n      - uses: actions/setup-go@v5\n        with: { go-version: '1.26' }\n      - run: go test ./...\n        working-directory: backend\n      - run: docker compose config\n"
+		check += "      - uses: actions/setup-node@v4\n        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }\n      - run: npm ci\n        working-directory: frontend\n      - run: npm run lint\n        working-directory: frontend\n      - uses: actions/setup-go@v5\n        with: { go-version: '1.27' }\n      - run: go test ./...\n        working-directory: backend\n      - run: docker compose config\n"
 	case "nextjs":
 		check += "      - uses: actions/setup-node@v4\n        with: { node-version: 22, cache: npm }\n      - run: npm ci\n      - run: npm run lint\n      - run: npm run build\n"
 	case "go":
-		check += "      - uses: actions/setup-go@v5\n        with: { go-version: '1.26' }\n      - run: go test ./...\n      - run: go vet ./...\n      - run: docker compose config\n"
+		check += "      - uses: actions/setup-go@v5\n        with: { go-version: '1.27' }\n      - run: go test ./...\n      - run: go vet ./...\n      - run: docker compose config\n"
 	}
 	return "name: CI\non:\n  pull_request:\n  push:\n    branches: [main]\npermissions:\n  contents: read\njobs:\n  basic:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n" + check
 }
@@ -440,11 +451,11 @@ func profileMakefile(profile string) string {
 func profileFiles(profile string) []string {
 	switch profile {
 	case "next-go":
-		return []string{"docker-compose.yml", "frontend/Dockerfile", "backend/Dockerfile", ".env.example", "backend/cmd/server/main.go", "backend/internal/domain/health.go", "backend/internal/usecase/health.go", "backend/internal/interface/http/handler.go", "backend/internal/infrastructure/config/config.go"}
+		return []string{"docker-compose.yml", "frontend/Dockerfile", "backend/Dockerfile", "backend/.env.example", "backend/go.mod.tmpl", "backend/cmd/server/main.go", "backend/internal/domain/health.go", "backend/internal/usecase/health.go", "backend/internal/interface/http/handler.go", "backend/internal/interface/http/router.go", "backend/internal/infrastructure/config/config.go", "backend/internal/infrastructure/database/database.go", "backend/internal/infrastructure/database/health.go"}
 	case "nextjs":
 		return []string{"docker-compose.yml", "Dockerfile", ".env.example"}
 	case "go":
-		return []string{"docker-compose.yml", "Dockerfile", ".env.example", "cmd/server/main.go", "internal/domain/health.go", "internal/usecase/health.go", "internal/interface/http/handler.go", "internal/infrastructure/config/config.go"}
+		return []string{"docker-compose.yml", "Dockerfile", ".env.example", "go.mod.tmpl", "cmd/server/main.go", "internal/domain/health.go", "internal/usecase/health.go", "internal/interface/http/handler.go", "internal/interface/http/router.go", "internal/infrastructure/config/config.go", "internal/infrastructure/database/database.go", "internal/infrastructure/database/health.go"}
 	default:
 		return nil
 	}
