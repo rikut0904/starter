@@ -20,6 +20,16 @@ make init/win   # Windows
 
 CLIを削除する場合は `make uninstall` を使用します。
 
+秘密情報検査のGit hookを有効にするには、macOSで次を実行します。
+
+```bash
+brew install pre-commit
+make hooks
+pre-commit run --all-files
+```
+
+Homebrewを使わない場合は、公式手順の `pip install pre-commit` でも導入できます。[pre-commit公式](https://pre-commit.com/)
+
 セットアップ後は、任意の作業ディレクトリで利用できます。
 
 ```bash

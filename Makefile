@@ -1,10 +1,11 @@
 .DEFAULT_GOAL := help
 BIN_DIR ?= $(shell go env GOPATH)/bin
 
-.PHONY: help init init/mac init/linux init/win uninstall test fmt
+.PHONY: help init init/mac init/linux init/win uninstall test fmt hooks
 help:
 	@echo "make init/mac|init/linux|init/win  CLIをビルドしてインストール"
 	@echo "make uninstall                    CLIを削除（確認あり）"
+	@echo "make hooks                        pre-commitのGit hookを登録"
 init:
 	@echo "OS別に make init/mac, make init/linux, make init/win を実行してください"
 init/mac:
@@ -41,3 +42,6 @@ test:
 	go test ./...
 fmt:
 	gofmt -w $$(find . -type f -name '*.go' -not -path './.git/*' -not -path './.gocache/*' -not -path './.gomodcache/*')
+hooks:
+	@command -v pre-commit >/dev/null || (echo "pre-commitが見つかりません。macOSでは 'brew install pre-commit' を実行してください"; exit 1)
+	pre-commit install

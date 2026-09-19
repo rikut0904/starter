@@ -13,7 +13,7 @@
 
 標準で週次更新、同時オープンPR数の上限、`dependencies`等のラベル、GitHub Actions自身の監視を設定する。
 
-`.pre-commit-config.yaml`ではGitleaks v8.30.1を実行し、コミット前に秘密情報を検査する。初回は `pre-commit install` を実行する。
+`.pre-commit-config.yaml`ではGitleaks v8.30.1を実行し、コミット前に秘密情報を検査する。初回は `brew install pre-commit && make hooks`（または公式のpip導入後に`make hooks`）を実行する。
 
 ## 2. CI
 
