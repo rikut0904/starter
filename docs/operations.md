@@ -13,6 +13,8 @@
 
 標準で週次更新、同時オープンPR数の上限、`dependencies`等のラベル、GitHub Actions自身の監視を設定する。
 
+`.pre-commit-config.yaml`ではGitleaks v8.30.1を実行し、コミット前に秘密情報を検査する。初回は `pre-commit install` を実行する。
+
 ## 2. CI
 
 `.github/workflows/ci.yml`をPRとmainへのpushで実行する。
@@ -41,4 +43,4 @@ Dependabot PRのProject登録・ステータス同期は任意機能とする。
 
 生成テストの成功だけで、ブラウザ表示、Docker起動、GitHub認証、Project連携、本番環境の正常性を証明したことにしない。
 
-Compose の PostgreSQL データは `postgres_data` named volume に保存される。`POSTGRES_PASSWORD` などの値は開発用デフォルトであり、本番では必ず環境変数または Secret に置き換える。
+Compose の PostgreSQL データは `postgres_data` named volume に保存される。生成 Compose はローカル専用の `trust` 認証で、DBポートも localhost のみに公開する。本番では Compose をそのまま使わず、パスワード認証と Secret 管理を設定した PostgreSQL に `DB_DSN` で接続する。

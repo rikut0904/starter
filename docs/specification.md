@@ -50,6 +50,7 @@ LICENSE_JA
 README.md
 Makefile
 .gitignore
+.pre-commit-config.yaml
 .github/
 ├── dependabot.yml
 └── workflows/
@@ -96,3 +97,4 @@ Makefile
 - 必要なプロファイルで外部生成コマンドを各1回試行できる
 - 外部コマンド失敗時にエラー内容と手動実行コマンドが表示される
 - Go系プロファイルにHTTPルーターとGORMによるDB初期化の雛形が含まれる
+- 全プロファイルにGitleaksのpre-commit設定が含まれる

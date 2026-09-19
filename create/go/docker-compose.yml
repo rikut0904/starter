@@ -4,21 +4,21 @@ services:
     ports: ["8080:8080"]
     environment:
       PORT: 8080
-      DB_DSN: ${DB_DSN:-host=db user=postgres password=postgres dbname=app port=5432 sslmode=disable}
+      DB_DSN: ${DB_DSN:-host=db user=app dbname=app port=5432 sslmode=disable}
     depends_on:
       db:
         condition: service_healthy
   db:
     image: postgres:18.6-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
       POSTGRES_DB: ${POSTGRES_DB:-app}
-    ports: ["5432:5432"]
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports: ["127.0.0.1:5432:5432"]
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-app} -d $${POSTGRES_DB:-app}"]
       interval: 5s
       timeout: 5s
       retries: 5
