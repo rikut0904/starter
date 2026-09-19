@@ -41,4 +41,4 @@ Dependabot PRのProject登録・ステータス同期は任意機能とする。
 
 生成テストの成功だけで、ブラウザ表示、Docker起動、GitHub認証、Project連携、本番環境の正常性を証明したことにしない。
 
-Compose の PostgreSQL データは `postgres_data` named volume に保存される。`POSTGRES_PASSWORD` などの値は開発用デフォルトであり、本番では必ず環境変数または Secret に置き換える。
+Compose の PostgreSQL データは `postgres_data` named volume に保存される。生成 Compose はローカル専用の `trust` 認証で、DBポートも localhost のみに公開する。本番では Compose をそのまま使わず、パスワード認証と Secret 管理を設定した PostgreSQL に `DB_DSN` で接続する。
