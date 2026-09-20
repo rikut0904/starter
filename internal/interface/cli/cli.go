@@ -466,7 +466,7 @@ func writeFile(root, rel, body string, force bool) error {
 
 func commonFiles(cfg Config) map[string]string {
 	result := map[string]string{}
-	for _, name := range []string{"AGENTS.md", "CONTRIBUTING.md", "LICENSE", "LICENSE_JA", "README.md", "Makefile", ".gitignore", ".github/dependabot.yml", ".github/workflows/ci.yml", ".github/workflows/dependency-review.yml"} {
+	for _, name := range []string{"AGENTS.md", "CONTRIBUTING.md", "LICENSE", "LICENSE_JA", "README.md", "Makefile", ".gitignore", ".github/dependabot.yml", ".github/workflows/ci.yml"} {
 		b, err := starter.Assets.ReadFile(filepath.Join("create", "common", name))
 		if err == nil {
 			result[name] = string(b)

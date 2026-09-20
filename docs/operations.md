@@ -24,7 +24,7 @@
 | `go` | backend fmt/vet/test/build、Compose検証 |
 | `empty` | YAML、Markdown、設定ファイルの基本検証 |
 
-依存関係変更を含むPRでは`dependency-review.yml`で脆弱性・ライセンスを確認する。存在しないコマンドをCIへ記載しない。
+依存関係の更新はDependabotで追跡する。存在しないコマンドをCIへ記載しない。
 
 ## 3. GitHub Projects
 

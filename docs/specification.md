@@ -53,8 +53,7 @@ Makefile
 .github/
 ├── dependabot.yml
 └── workflows/
-    ├── ci.yml
-    └── dependency-review.yml
+    └── ci.yml
 ```
 
 `AGENTS.md`には、目的、構成、開発・テスト・ビルドコマンド、規約、シークレットの扱い、検証範囲を記載する。サブディレクトリ固有の指示は下位の`AGENTS.md`へ分割できる。
