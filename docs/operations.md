@@ -28,6 +28,8 @@
 
 依存関係変更を含むPRでは`dependency-review.yml`で脆弱性・ライセンスを確認する。存在しないコマンドをCIへ記載しない。
 
+Dependency reviewを有効にするには、GitHubリポジトリの `Settings` → `Security` → `Advanced Security` で `Dependency graph` を有効にする。private repositoryでは利用プランに応じてGitHub Code SecurityまたはGitHub Advanced Securityが必要になる場合がある。Node 20のdeprecated警告は、ActionsランナーがNode 24で実行している通知であり、非安全なNode 20へ戻す設定は追加しない。
+
 ## 3. GitHub Projects
 
 Dependabot PRのProject登録・ステータス同期は任意機能とする。Project ID等はSecrets/Variablesから取得し、同じPRを重複登録しない。PRコード実行とProject書き込みはジョブを分離し、権限を最小化する。
