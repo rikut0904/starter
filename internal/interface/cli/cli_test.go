@@ -87,10 +87,19 @@ func TestLoadConfigJSON(t *testing.T) {
 
 func TestGoProfileIncludesCleanArchitecture(t *testing.T) {
 	files := commonFiles(Config{Name: "example.com/demo", Profile: "go"})
-	for _, name := range []string{"cmd/server/main.go", "internal/domain/health.go", "internal/usecase/health.go"} {
+	for _, name := range []string{"go.mod", "cmd/server/main.go", "internal/domain/health.go", "internal/usecase/health.go", "internal/interface/http/router.go", "internal/infrastructure/database/database.go"} {
 		if _, ok := files[name]; !ok {
 			t.Fatalf("missing generated file %s", name)
 		}
+	}
+	if !strings.Contains(files["go.mod"], "gorm.io/driver/postgres v1.6.3") {
+		t.Fatal("go.mod must include the GORM PostgreSQL driver")
+	}
+	if !strings.Contains(files["go.mod"], "github.com/labstack/echo/v5") {
+		t.Fatal("go.mod must include Echo")
+	}
+	if !strings.Contains(files["cmd/server/main.go"], "database.New") || !strings.Contains(files["cmd/server/main.go"], "NewRouter") {
+		t.Fatal("server must initialize the database and router")
 	}
 }
 
@@ -101,6 +110,33 @@ func TestNextGoBackendUsesBackendModule(t *testing.T) {
 	}
 	if strings.Contains(files["backend/cmd/server/main.go"], "starter/create/next-go") {
 		t.Fatal("template import path leaked into generated main.go")
+	}
+}
+
+func TestGenerateGoProfileIncludesRouterDatabaseAndModule(t *testing.T) {
+	dir := t.TempDir()
+	out := filepath.Join(dir, "demo")
+	if err := generate(out, Config{Name: "example.com/demo", Profile: "go"}, true, func(string, string, ...string) error { return nil }); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"go.mod", "internal/interface/http/router.go", "internal/infrastructure/database/database.go"} {
+		if _, err := os.Stat(filepath.Join(out, name)); err != nil {
+			t.Errorf("missing generated file %s: %v", name, err)
+		}
+	}
+	main, err := os.ReadFile(filepath.Join(out, "cmd/server/main.go"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(main), "{{MODULE}}") || strings.Contains(string(main), "starter/create/go") {
+		t.Fatal("template import path leaked into generated Go project")
+	}
+}
+
+func TestGoProfileUsesSupportedPostgresImage(t *testing.T) {
+	files := commonFiles(Config{Name: "example.com/demo", Profile: "go"})
+	if !strings.Contains(files["docker-compose.yml"], "postgres:18.6-alpine") {
+		t.Fatal("go profile must pin the PostgreSQL 18.6 Alpine image")
 	}
 }
 
@@ -141,6 +177,25 @@ func TestNextGoDependabotTargetsBackendModule(t *testing.T) {
 	config := dependabot("next-go")
 	if !strings.Contains(config, "package-ecosystem: gomod\n    directory: /backend\n") {
 		t.Fatalf("next-go profile must target the backend module: %s", config)
+	}
+}
+
+func TestDependabotCoversDockerfiles(t *testing.T) {
+	goConfig := dependabot("go")
+	if !strings.Contains(goConfig, "package-ecosystem: docker\n    directory: /\n") {
+		t.Fatal("go profile must monitor its root Dockerfile")
+	}
+	if !strings.Contains(goConfig, "package-ecosystem: docker-compose\n    directory: /\n") {
+		t.Fatal("go profile must monitor its root Compose images")
+	}
+	nextGoConfig := dependabot("next-go")
+	if !strings.Contains(nextGoConfig, "package-ecosystem: docker-compose\n    directory: /\n") {
+		t.Fatal("next-go profile must monitor its root Compose images")
+	}
+	for _, directory := range []string{"/frontend", "/backend"} {
+		if !strings.Contains(nextGoConfig, "package-ecosystem: docker\n    directory: "+directory+"\n") {
+			t.Fatalf("next-go profile must monitor Dockerfile in %s", directory)
+		}
 	}
 }
 

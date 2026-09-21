@@ -6,9 +6,9 @@
 
 | プロファイル | 監視対象 |
 |---|---|
-| `next-go` | frontendのnpm、backendのGo Modules、GitHub Actions |
-| `nextjs` | npm、GitHub Actions |
-| `go` | backendのGo Modules、GitHub Actions |
+| `next-go` | frontendのnpm、backendのGo Modules、frontend/backendのDockerfile、rootのCompose、GitHub Actions |
+| `nextjs` | npm、rootのDockerfile/Compose、GitHub Actions |
+| `go` | rootのGo Modules、rootのDockerfile/Compose、GitHub Actions |
 | `empty` | GitHub Actions |
 
 標準で週次更新、同時オープンPR数の上限、`dependencies`等のラベル、GitHub Actions自身の監視を設定する。
@@ -24,7 +24,7 @@
 | `go` | backend fmt/vet/test/build、Compose検証 |
 | `empty` | YAML、Markdown、設定ファイルの基本検証 |
 
-依存関係変更を含むPRでは`dependency-review.yml`で脆弱性・ライセンスを確認する。存在しないコマンドをCIへ記載しない。
+依存関係の更新はDependabotで追跡する。存在しないコマンドをCIへ記載しない。
 
 ## 3. GitHub Projects
 
@@ -40,3 +40,5 @@ Dependabot PRのProject登録・ステータス同期は任意機能とする。
 - `pull_request_target`でPRブランチのコードを実行しない
 
 生成テストの成功だけで、ブラウザ表示、Docker起動、GitHub認証、Project連携、本番環境の正常性を証明したことにしない。
+
+Compose の PostgreSQL データは `postgres_data` named volume に保存される。生成 Compose はローカル専用の `trust` 認証で、DBポートも localhost のみに公開する。本番では Compose をそのまま使わず、パスワード認証と Secret 管理を設定した PostgreSQL に `DB_DSN` で接続する。

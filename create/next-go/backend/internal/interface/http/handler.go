@@ -1,16 +1,12 @@
 package http
 
 import (
-	"encoding/json"
+	"github.com/labstack/echo/v5"
 	"github.com/rikut0904/starter/create/next-go/backend/internal/usecase"
-	"net/http"
 )
 
-func NewHandler(health usecase.Health) http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(health.Check())
-	})
-	return mux
+func NewHandler(health usecase.Health) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		return c.JSON(200, health.Check())
+	}
 }

@@ -53,8 +53,7 @@ Makefile
 .github/
 ├── dependabot.yml
 └── workflows/
-    ├── ci.yml
-    └── dependency-review.yml
+    └── ci.yml
 ```
 
 `AGENTS.md`には、目的、構成、開発・テスト・ビルドコマンド、規約、シークレットの扱い、検証範囲を記載する。サブディレクトリ固有の指示は下位の`AGENTS.md`へ分割できる。
@@ -95,3 +94,4 @@ Makefile
 - アンインストールを`make uninstall`で実行できる
 - 必要なプロファイルで外部生成コマンドを各1回試行できる
 - 外部コマンド失敗時にエラー内容と手動実行コマンドが表示される
+- Go系プロファイルにHTTPルーターとGORMによるDB初期化の雛形が含まれる
