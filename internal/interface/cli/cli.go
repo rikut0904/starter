@@ -557,11 +557,11 @@ func profileMakefile(profile string) string {
 func profileFiles(profile string) []string {
 	switch profile {
 	case "next-go":
-		return []string{"docker-compose.yml", "frontend/Dockerfile", "backend/Dockerfile", "backend/.env.example", "backend/go.mod.tmpl", "backend/cmd/server/main.go", "backend/internal/domain/health.go", "backend/internal/usecase/health.go", "backend/internal/interface/http/handler.go", "backend/internal/interface/http/router.go", "backend/internal/infrastructure/config/config.go", "backend/internal/infrastructure/database/database.go", "backend/internal/infrastructure/database/health.go"}
+		return []string{"docker-compose.yml", "docs/tech-stack.md", "frontend/Dockerfile", "backend/Dockerfile", "backend/.env.example", "backend/go.mod.tmpl", "backend/cmd/server/main.go", "backend/internal/domain/health.go", "backend/internal/usecase/health.go", "backend/internal/interface/http/handler.go", "backend/internal/interface/http/router.go", "backend/internal/infrastructure/config/config.go", "backend/internal/infrastructure/database/database.go", "backend/internal/infrastructure/database/health.go"}
 	case "nextjs":
-		return []string{"docker-compose.yml", "Dockerfile", ".env.example"}
+		return []string{"docker-compose.yml", "docs/tech-stack.md", "Dockerfile", ".env.example"}
 	case "go":
-		return []string{"docker-compose.yml", "Dockerfile", ".env.example", "go.mod.tmpl", "cmd/server/main.go", "internal/domain/health.go", "internal/usecase/health.go", "internal/interface/http/handler.go", "internal/interface/http/router.go", "internal/infrastructure/config/config.go", "internal/infrastructure/database/database.go", "internal/infrastructure/database/health.go"}
+		return []string{"docker-compose.yml", "docs/tech-stack.md", "Dockerfile", ".env.example", "go.mod.tmpl", "cmd/server/main.go", "internal/domain/health.go", "internal/usecase/health.go", "internal/interface/http/handler.go", "internal/interface/http/router.go", "internal/infrastructure/config/config.go", "internal/infrastructure/database/database.go", "internal/infrastructure/database/health.go"}
 	default:
 		return nil
 	}
