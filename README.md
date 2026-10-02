@@ -74,6 +74,9 @@ make init/commond
 - [CLI仕様とMakefile](docs/cli.md)
 - [生成プロファイル](docs/profiles.md)
 - [運用・Dependabot・CI](docs/operations.md)
+- [Next.js + Go 推奨技術スタック](docs/tech-stack-next-go.md)
+- [Next.js 推奨技術スタック](docs/tech-stack-nextjs.md)
+- [Go 推奨技術スタック](docs/tech-stack-go.md)
 
 ## ライセンス
 
